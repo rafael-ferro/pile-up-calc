@@ -14,23 +14,23 @@ subroutine pileup(n, spectrum, f, Tw, Tp, time, pile)
     real(dp), intent(in) :: f, Tw, Tp, time
     real(dp), dimension(n), intent(in) :: spectrum
     real(dp), dimension(n), intent(out) :: pile
-    real(dp) :: Nt, Tpulse, ixj, t1, t2, LG
+    real(dp) :: Nt, Tpulse, ixj, LG
     integer :: i, j, k, ipj
 
     Tpulse = f * Tw
     Nt = sum(spectrum) / time
     pile = 0
     do i = 1, n
+        if (spectrum(i) .le. 0) cycle
         do j = i, n
+            if (spectrum(j) .le. 0) cycle
             ipj = i+j
             ixj = i*j
             do k = j, ipj
-                t1 = sqrt((ipj-k)*ipj/ixj)
-                t2 = sqrt((ipj-k+1.0)*ipj/ixj)
-                LG = spectrum(i) * spectrum(j) * (t2 - t1)
+                LG = spectrum(i) * spectrum(j) * (sqrt((ipj-k+1.0)*ipj/ixj) - sqrt((ipj-k)*ipj/ixj))
                 pile(i) = pile(i) - LG
                 pile(j) = pile(j) - LG
-                if (k < n) then
+                if (k <= n) then
                     pile(k) = pile(k) + LG
                 end if
             end do
